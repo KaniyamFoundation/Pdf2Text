@@ -78,19 +78,17 @@ if not float(version) == float(latest_version):
 logger.info("Running pdf2text.py " + version)
 
 
-os_info = open("/etc/lsb-release")
-for line in os_info:
-    if "DISTRIB_DESCRIPTION" in line:
-        os_version = line.split("=")[1]
-
-logging.info("Operating System = " + os_version)
-
 
 # Read the config file
 
 input_filename = config.get("settings", "file_name")
-input_folder = config.get("settings", "folder_name")
+#input_folder = config.get("settings", "folder_name")
 columns = config.get("settings", "columns")
+#working_directory = config.get("settings", "working_directory")
+
+google_vision_api_key = config.get("settings", "google_vision_api_key")
+
+
 
 MUTOOL = config.get("application_path","mutool")
 PDFSEPARATE = config.get("application_path",  "pdfseparate")
@@ -99,14 +97,23 @@ GS = config.get("application_path",  "gs")
 
 
 
+
 logger.info("File name = " + input_filename)
-logger.info("Folder name = " + input_folder)
+#logger.info("Folder name = " + input_folder)
 logger.info("Columns = " + columns)
 
 
 filetype = input_filename.split(".")[-1].lower()
 
 logger.info("File Type = " + filetype)
+
+
+#pdf_dir = working_directory + "/" +  input_filename
+#os.mkdir(pdf_dir)
+#os.chdir(working_directory)
+#shutil.copy(input_filename, pdf_dir +"/" + input_filename)
+
+
 
 
 temp_folder = "OCR-" + input_filename + "-temp-" + timestamp
@@ -169,6 +176,7 @@ if filetype.lower() == "pdf":
             files[x : x + int(columns)] for x in range(0, len(files), int(columns))
         ]
 
+      
         counter = 1
         message = "Joining the PDF files ...\n"
         logger.info(message)
@@ -197,10 +205,9 @@ def move_file(file):
 def get_text(image_file):
     """Run a text detection request on a single image"""
 
-    access_token = os.environ.get("VISION_API")
-    print(access_token)
+    access_token = google_vision_api_key
     if access_token == "None":
-        print("Import VISION API KEY")
+        print("set VISION API KEY in config.ini")
         sys.exit()
 
     service = Service("vision", "v1", access_token=access_token)
@@ -215,7 +222,11 @@ def get_text(image_file):
             ]
         }
         response = service.execute(body=body)
-        # print(response)
+        #print(response)
+        if "error" in response:
+            print(response["error"]["message"])
+            sys.exit()
+
         if response["responses"][0]:
             text = response["responses"][0]["textAnnotations"][0]["description"]
             # print('Found text: {}'.format(text))
@@ -229,7 +240,7 @@ logger.info("Converting all the PDF files to JPEG images")
 for pdf in glob.glob("page_*.pdf"):
     basename = pdf.split(".")[0]
     pdf_to_jpg = (
-        GS + " -q -DNOPAUSE -DBATCH -r400 -SDEVICE=jpeg  -sOutputFile="
+        GS + " -q -DNOPAUSE -DBATCH -r800 -SDEVICE=jpeg  -sOutputFile="
         + basename
         + ".jpg "
         + pdf
