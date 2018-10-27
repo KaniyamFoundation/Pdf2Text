@@ -61,6 +61,16 @@ python3 pdf2text.py
 
 
 
+# How it works?
+
+* Python gets the PDF file
+* splits using pdfseparate
+* cuts the pdf vertically based on column number using mutool
+* stitches the pdf using pdfunite
+* converts the PDF to JPG using gs (Ghostscript)
+* Python sends the image to google and gets as text
+* Python combines all text to one single text file.
+
 
 
 
