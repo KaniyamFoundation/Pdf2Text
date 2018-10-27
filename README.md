@@ -27,6 +27,7 @@ Note: You need a valid credit card to create a Billing Account in Google Cloud.
 
 3. Enter the required details in config.ini
 
+```
 [settings]
 
 file_name = 
@@ -39,15 +40,18 @@ mutool = /usr/bin/mutool
 pdfseparate = /usr/bin/pdfseparate
 pdfunite = /usr/bin/pdfunite
 gs = /usr/bin/gs
-
+```
 
 In the [settings] section,
 
 give the PDF file name in file_name
+
 give the column number
+
 give the google_vision_api_key
 
 in the [application_path] section, 
+
 give the full path for mutool, pdfseparate, pdfunite and gs.
 
 
