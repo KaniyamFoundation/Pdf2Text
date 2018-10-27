@@ -3,7 +3,6 @@
 import sys
 import requests
 import os
-from clint.textui import progress
 import glob
 import shutil
 import time
@@ -14,7 +13,6 @@ import os.path
 from utils import Service, encode_image
 
 # from urllib.request import urlopen
-import requests
 
 
 version = "1"

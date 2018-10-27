@@ -1,19 +1,62 @@
-# text_detection_python (with Google Vision API)
+# pdf2text (with Google Vision API)
 
->>This script will convert your multi pages PDF file to single pages PDF
+This script will convert your multi pages PDF file to text file using Google VISION API
 
->>Convert the single page PDF to Image
 
->>Recognize the text from the image and save the text to a TXT file.
+# Install
 
-* Import VISION_API to your local machine
 
-* pip install -r requirements.txt
+# run below command in ubuntu
 
-* Create Folders named pdf, image, text to the current folder
+sudo apt-get install poppler-utils mupdf-tools git python3-pip
 
-* place your pdf file the pdf folder
+sudo pip3 install requests
+sudo pip3 install configparser
 
-* run the script ./pdf_img_text.py
 
-* For sample, added a file named "code.pdf"
+# Setup
+
+1. setup VISOION API in Google Cloud Console
+
+See here for the links on setting up 
+https://cloud.google.com/vision/docs/before-you-begin
+
+Note: You need a valid credit card to create a Billing Account in Google Cloud.
+
+2. you will get a VISION API as a big string.
+
+3. Enter the required details in config.ini
+
+[settings]
+
+file_name = 
+columns = 
+google_vision_api_key =
+
+[application_path]
+
+mutool = /usr/bin/mutool
+pdfseparate = /usr/bin/pdfseparate
+pdfunite = /usr/bin/pdfunite
+gs = /usr/bin/gs
+
+
+In the [settings] section,
+
+give the PDF file name in file_name
+give the column number
+give the google_vision_api_key
+
+in the [application_path] section, 
+give the full path for mutool, pdfseparate, pdfunite and gs.
+
+
+# Execute
+
+python3 pdf2text.py
+
+
+
+
+
+
