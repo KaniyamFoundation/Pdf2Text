@@ -10,7 +10,16 @@ import datetime
 import configparser
 import logging
 import os.path
-from utils import Service, encode_image
+import io
+#from utils import Service, encode_image
+
+from googleapiclient.discovery import build
+from httplib2 import Http
+from oauth2client import file, client, tools
+from apiclient.http import MediaIoBaseDownload, MediaFileUpload
+
+
+
 
 # from urllib.request import urlopen
 
@@ -77,6 +86,26 @@ logger.info("Running pdf2text.py " + version)
 
 
 
+
+SCOPES = 'https://www.googleapis.com/auth/drive.file'
+store = file.Storage('token.json')
+creds = store.get()
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets('client_secret.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service = build('drive', 'v3', http=creds.authorize(Http()))
+
+
+file_metadata = {'name': 'ocr_files_shrini',
+                  'mimeType': 'application/vnd.google-apps.folder'
+                }
+folder = service.files().create(body=file_metadata,
+                                                    fields='id').execute()
+new_folder_id=folder.get('id')
+
+
+
+
 # Read the config file
 
 input_filename = config.get("settings", "file_name")
@@ -84,7 +113,7 @@ input_filename = config.get("settings", "file_name")
 columns = config.get("settings", "columns")
 #working_directory = config.get("settings", "working_directory")
 
-google_vision_api_key = config.get("settings", "google_vision_api_key")
+#google_vision_api_key = config.get("settings", "google_vision_api_key")
 
 
 
@@ -133,8 +162,8 @@ if filetype.lower() == "pdf":
         + " "
         + '"'
         + input_filename
-        + '"'
-        + "  currentfile.pdf"
+        + '" '
+        + temp_folder + "/currentfile.pdf"
     )
     logger.info("Running " + command)
 
@@ -144,12 +173,12 @@ if filetype.lower() == "pdf":
 
     message = "Spliting the PDF into single pages. \n"
     logger.info(message)
-    burst_command = PDFSEPARATE + " currentfile.pdf pg-%05d.pdf"
+    burst_command = PDFSEPARATE +   " " + temp_folder + "/currentfile.pdf " + temp_folder + "/pg-%05d.pdf"
     os.system(burst_command)
     logger.info("Running " + burst_command)
 
     files = []
-    for filename in glob.glob("pg*.pdf"):
+    for filename in glob.glob(temp_folder + "/" + "pg*.pdf"):
         files.append(filename)
         files.sort()
 
@@ -162,7 +191,7 @@ if filetype.lower() == "pdf":
     if columns == "1":
         counter = 1
         for pdf in files:
-            shutil.copy(pdf, "page_" + str(counter).zfill(5) + ".pdf")
+            shutil.copy(pdf, temp_folder +"/" + "page_" + str(counter).zfill(5) + ".pdf")
             # command = "cp " + pdf +  " page_" + str(counter).zfill(5) + ".pdf"
             # logger.info("Running Command " + command)
             counter = counter + 1
@@ -181,7 +210,7 @@ if filetype.lower() == "pdf":
 
         for i in chunks:
             com = " ".join(i)
-            command = PDFUNITE + " " + com + " " + "page_" + str(counter).zfill(5) + ".pdf"
+            command = PDFUNITE + " " + com + " " +  temp_folder +"/" + "page_" + str(counter).zfill(5) + ".pdf"
             logger.info("Running " + command)
             counter = counter + 1
             os.system(command)
@@ -200,56 +229,30 @@ def move_file(file):
         logger.info(message)
 
 
-def get_text(image_file):
-    """Run a text detection request on a single image"""
-
-    access_token = google_vision_api_key
-    if access_token == "None":
-        print("set VISION API KEY in config.ini")
-        sys.exit()
-
-    service = Service("vision", "v1", access_token=access_token)
-    with open(image_file, "rb") as image:
-        base64_image = encode_image(image)
-        body = {
-            "requests": [
-                {
-                    "image": {"content": base64_image},
-                    "features": [{"type": "TEXT_DETECTION", "maxResults": 1}],
-                }
-            ]
-        }
-        response = service.execute(body=body)
-        #print(response)
-        if "error" in response:
-            print(response["error"]["message"])
-            sys.exit()
-
-        if response["responses"][0]:
-            text = response["responses"][0]["textAnnotations"][0]["description"]
-            # print('Found text: {}'.format(text))
-        else:
-            text = " "
-
-    return text
 
 
 logger.info("Converting all the PDF files to JPEG images")
-for pdf in glob.glob("page_*.pdf"):
-    basename = pdf.split(".")[0]
+for pdf in glob.glob(temp_folder +"/" + "page_*.pdf"):
+
+    print(pdf)
+    basename = "".join(os.path.basename(pdf).split(".")[:-1])
+    print(basename)
     pdf_to_jpg = (
         GS + " -q -DNOPAUSE -DBATCH -r800 -SDEVICE=jpeg  -sOutputFile="
-        + basename
+        + temp_folder + "/" + basename
         + ".jpg "
         + pdf
     )
+
     logger.info(pdf_to_jpg)
     os.system(pdf_to_jpg)
 
 
 files = []
-for filename in glob.glob("page_*.jpg"):
+for filename in glob.glob(temp_folder + "/" + "page_*.jpg"):
     files.append(filename)
+
+
 
 
 # Upload the PDF files to google drive and OCR
@@ -257,24 +260,47 @@ for filename in glob.glob("page_*.jpg"):
 upload_counter = 1
 
 for jpg_file in sorted(files):
-
-    if not os.path.isfile(jpg_file.split(".")[0] + ".upload"):
+    basename = "".join(os.path.basename(jpg_file).split(".")[:-1])
+    
+    if not os.path.isfile(temp_folder + "/" + basename + ".upload"):
 
         message = (
             "\n\nuploading " + jpg_file + " to google. "
         )  # File " + str(upload_counter) + " of " + str(len(files)) + " \n\n"
         logger.info(message)
 
-        text = get_text(jpg_file)
 
-        filename = jpg_file.split(".")[0] + ".txt"
 
-        file1 = open(filename, "a")
+        # Upload the file on Goggle Drive
+        folder_id = new_folder_id
+        mime = 'application/vnd.google-apps.document'
+        file_metadata = {'name': jpg_file, 'mimeType': mime, 'parents': [folder_id] }
+        media = MediaFileUpload( jpg_file, mimetype= mime )
+        Imgfile = service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
+
+
+        filename = temp_folder + "/" + basename + ".txt"
+
+        # Download the file in txt format from Google Drive
+        getTxt = service.files().export_media( fileId = Imgfile.get('id'), mimeType='text/plain')
+        fh = io.FileIO( filename , 'wb' )
+        downloader = MediaIoBaseDownload(fh, getTxt)
+        downloader.next_chunk()
+
+
+
+        #text = get_text(jpg_file)
+
+
+
+        #file1 = open(filename, "a")
         # file1.write(text,'\n')
-        file1.write("{}\n".format(text))
-        file1.close()
+        #file1.write("{}\n".format(text))
+        #file1.close()
 
-        f= open(jpg_file.split(".")[0] + ".upload","w+")
+        f= open(temp_folder + "/" + basename + ".upload","w+")
         f.close()
         logger.info("Creating temp file "  + "\n")
         
@@ -284,8 +310,8 @@ for jpg_file in sorted(files):
         upload_counter = upload_counter + 1
 
 
-jpg_count = len(glob.glob("page_*.jpg"))
-text_count = len(glob.glob("page_*.txt"))
+jpg_count = len(glob.glob(temp_folder + "/" + "page_*.jpg"))
+text_count = len(glob.glob(temp_folder + "/"  + "page_*.txt"))
 
 missing_files = open("missing_files.txt", "w")
 
@@ -310,7 +336,7 @@ missing_files.close()
 
 
 files = []
-for filename in glob.glob("page_*.txt"):
+for filename in glob.glob(temp_folder + "/" + "page_*.txt"):
     files.append(filename)
     files.sort()
 
@@ -328,7 +354,7 @@ for filename in glob.glob("page_*.txt"):
 
 
 files = []
-for textfile in glob.glob("page*.txt"):
+for textfile in glob.glob(temp_folder  +"/" + "page*.txt"):
     files.append(textfile)
     files.sort()
 
@@ -365,7 +391,7 @@ logger.info("Merged all OCRed files to  all_text_for_" + input_filename + ".txt"
 # logger.info(message)
 
 
-result_text_count = len(glob.glob("page_*.txt"))
+result_text_count = len(glob.glob(temp_folder + "/" + "page_*.txt"))
 
 if not jpg_count == result_text_count:
     logger.info("\n\n=========ERROR===========\n\n")
@@ -383,16 +409,19 @@ else:
     for file in glob.glob("*.log"):
         shutil.move(file, temp_folder)
 
-    shutil.move("currentfile.pdf", temp_folder)
+    #shutil.move("currentfile.pdf", temp_folder)
 
-    for file in glob.glob("pg*.pdf"):
-        shutil.move(file, temp_folder)
+    #for file in glob.glob("pg*.pdf"):
+    #    shutil.move(file, temp_folder)
 
-    for file in glob.glob("page*"):
-        shutil.move(file, temp_folder)
+    #for file in glob.glob("page*"):
+    #    shutil.move(file, temp_folder)
 
-    for file in glob.glob("txt*"):
-        shutil.move(file, temp_folder)
+    #for file in glob.glob("txt*"):
+    #    shutil.move(file, temp_folder)
 
-    for file in glob.glob("*.jpg"):
-        shutil.move(file, temp_folder)
+    #for file in glob.glob("*.jpg"):
+    #    shutil.move(file, temp_folder)
+
+    service.files().delete(fileId=new_folder_id).execute()
+
