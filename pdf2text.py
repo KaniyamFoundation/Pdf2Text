@@ -12,11 +12,14 @@ import logging
 import os.path
 import io
 #from utils import Service, encode_image
+import argparse
 
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 from apiclient.http import MediaIoBaseDownload, MediaFileUpload
+
+parser = argparse.ArgumentParser()
 
 
 
@@ -24,7 +27,17 @@ from apiclient.http import MediaIoBaseDownload, MediaFileUpload
 # from urllib.request import urlopen
 
 
-version = "1"
+version = "1.1"
+
+parser.add_argument('-p','--pdf-file', help='PDF file name', required=True)
+parser.add_argument('-c','--columns', help='Number of Columns', default="1", required=False)
+
+
+args = parser.parse_args()
+
+input_filename = args.pdf_file
+columns = args.columns
+
 
 
 config = configparser.ConfigParser()
@@ -108,9 +121,9 @@ new_folder_id=folder.get('id')
 
 # Read the config file
 
-input_filename = config.get("settings", "file_name")
+#input_filename = config.get("settings", "file_name")
 #input_folder = config.get("settings", "folder_name")
-columns = config.get("settings", "columns")
+#columns = config.get("settings", "columns")
 #working_directory = config.get("settings", "working_directory")
 
 #google_vision_api_key = config.get("settings", "google_vision_api_key")

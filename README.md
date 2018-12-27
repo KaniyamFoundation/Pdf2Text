@@ -11,56 +11,92 @@ This script will convert your multi pages PDF file to text file using Google VIS
 
 sudo apt-get install poppler-utils mupdf-tools git python3-pip
 
-sudo pip3 install requests
+sudo pip3 install requests --ignore-installed
 
-sudo pip3 install configparser
-```
+sudo pip3 install configparser --ignore-installed
 
-# Setup
-
-1. setup VISOION API in Google Cloud Console
-
-See here for the links on setting up 
-https://cloud.google.com/vision/docs/before-you-begin
-
-Note: You need a valid credit card to create a Billing Account in Google Cloud.
-
-2. you will get a VISION API as a big string.
-
-3. Enter the required details in config.ini
+sudo pip3 install google-api-python-client --ignore-installed
 
 ```
-[settings]
 
-file_name = 
-columns = 
-google_vision_api_key =
+# API Setup
 
-[application_path]
+# API Setup
+ * Create a new project for this tool to access your Google drive
+    * Visit https://console.developers.google.com/ , create project, name it anything you like, ex: pdf2text.
 
-mutool = /usr/bin/mutool
-pdfseparate = /usr/bin/pdfseparate
-pdfunite = /usr/bin/pdfunite
-gs = /usr/bin/gs
+ * Enable the following Google APIs in "APIs & auth/APIs"
+    * Drive API
+    * Fusion Tables API
+
+ * Make sure your application has an application name in "APIs & auth/Consent screen"
+    * Find "PRODUCT NAME" field. Make sure it's not blank.
+
+ * Grant access to Google Drive for pdf2text in "APIs & auth/Credentials"
+    * Click "Create new Client ID", APPLICATION TYPE: Installed application, INSTALLED APPLICATION TYPE: Other
+    * Check the section "Client ID for native application", click at the "Download JSON".
+    * save the json file as "client_secret.json" in the same folder where pdf2text.py script is.
+ 
+ When running pdf2text.py, it will open a browser and ask to login to gmail and give permission to the project.
+ Do as mentioned on the screen.
+
+
+# First run
+
+* Copy the PDf file you want to convert to text in the same folder, where pdf2text.py file is.
+* Make sure there is no space in the pdf file name. Rename to replace all the spaces with "_"
+
+
+* run the below command
+
 ```
 
-In the [settings] section,
+python3 pdf2text.py --noauth_local_webserver -p [pdf_file_name]
 
-give the PDF file name in file_name
+```
 
-give the column number
-
-give the google_vision_api_key
-
-in the [application_path] section, 
-
-give the full path for mutool, pdfseparate, pdfunite and gs.
+Give the PDF file name in the [pdf_file_name] 
 
 
-# Execute
+It will show a link.
+Open the link in browser.
+Login to your gmail account, which you used to generate client_secret.json
+It will show a Key.
+Copy the Key and paste in the console.
+Press Enter.
 
-python3 pdf2text.py
+It will proceed further with converting the PDF files to text.
 
+Once, all the execution is done, check the same folder for a file, with a name "all_text_for_YOUR_PDF_FILE.PDF.txt"
+
+
+
+# second run
+
+
+For second runs, you can run as below
+
+
+```
+
+python3 pdf2text.py  -p [pdf_file_name]
+
+```
+
+
+# Columns
+
+this script can process single column PDF files and double column PDF files.
+
+Single column is default.
+
+For double column files, run as below
+
+```
+
+python3 pdf2text.py  -p [pdf_file_name] -c 2
+
+```
 
 
 # How it works?
