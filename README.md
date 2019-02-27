@@ -17,6 +17,8 @@ sudo pip3 install configparser --ignore-installed
 
 sudo pip3 install google-api-python-client --ignore-installed
 
+sudo pip3 install oauth2client --ignore-installed
+
 ```
 
 # API Setup
@@ -43,19 +45,21 @@ sudo pip3 install google-api-python-client --ignore-installed
 
 # First run
 
-* Copy the PDf file you want to convert to text in the same folder, where pdf2text.py file is.
+* Keep all the PDF files to be OCR in the folder "input"
+* Copy the PDf file you want to convert to text in the "input" folder, where pdf2text.py file is.
 * Make sure there is no space in the pdf file name. Rename to replace all the spaces with "_"
+* Check the config.ini for Columns number. Set 1 (default) or 2.
 
 
 * run the below command
 
 ```
 
-python3 pdf2text.py --noauth_local_webserver -p [pdf_file_name]
+python3 pdf2text.py --noauth_local_webserver 
 
 ```
 
-Give the PDF file name in the [pdf_file_name] 
+
 
 
 It will show a link.
@@ -67,7 +71,7 @@ Press Enter.
 
 It will proceed further with converting the PDF files to text.
 
-Once, all the execution is done, check the same folder for a file, with a name "all_text_for_YOUR_PDF_FILE.PDF.txt"
+Once, all the execution is done, check the  folder "output" for a file, with a name "all_text_for_YOUR_PDF_FILE.PDF.txt"
 
 
 
@@ -79,7 +83,7 @@ For second runs, you can run as below
 
 ```
 
-python3 pdf2text.py  -p [pdf_file_name]
+python3 pdf2text.py  
 
 ```
 
@@ -90,25 +94,22 @@ this script can process single column PDF files and double column PDF files.
 
 Single column is default.
 
-For double column files, run as below
+For double column files, set columns = 2 in config.ini
 
-```
-
-python3 pdf2text.py  -p [pdf_file_name] -c 2
-
-```
 
 
 # How it works?
 
-* Python gets the PDF file
+* Python gets the PDF file from input folder
 * splits using pdfseparate
 * cuts the pdf vertically based on column number using mutool
 * stitches the pdf using pdfunite
 * converts the PDF to JPG using gs (Ghostscript)
 * Python sends the image to google and gets as text
 * Python combines all text to one single text file.
-
+* Once done, moves the pdf file to the folder "completed_source_files"
+* moves the "all_text_for_YOUR_PDF_FILE.PDF.txt" file to the folder "output"
+* Deletes all the temporary folders.
 
 
 
