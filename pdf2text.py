@@ -30,7 +30,7 @@ from apiclient.http import MediaIoBaseDownload, MediaFileUpload
 
 
 
-version = "1.2"
+version = "1.1"
 
 #parser.add_argument('--noauth_local_webserver',help = "noauth_local_webserver")
 
