@@ -11,6 +11,8 @@ import configparser
 import logging
 import os.path
 import io
+import string
+import re
 #from utils import Service, encode_image
 import argparse
 
@@ -28,7 +30,7 @@ from apiclient.http import MediaIoBaseDownload, MediaFileUpload
 
 
 
-version = "1.1"
+version = "1.2"
 
 #parser.add_argument('--noauth_local_webserver',help = "noauth_local_webserver")
 
@@ -161,6 +163,54 @@ logger.info("Input Folder name = " + input_folder)
 logger.info("Output Folder name = " + output_folder)
 #logger.info("Folder name = " + input_folder)
 logger.info("Columns = " + columns)
+
+
+
+## Renaming all input files to remove all special charecters and spaces.
+
+delchars = ''.join(c for c in map(chr, range(256)) if not c.isalnum())
+
+
+lv_path = input_folder
+
+paths = (os.path.join(root, filename)
+         for root, _, filenames in os.walk(lv_path)
+         for filename in filenames)
+
+print ("Search at " + lv_path)
+
+
+for path in paths:
+    newname = path.replace('#', '')
+    newname = newname.replace('%', '')
+    newname = newname.replace('*', '')
+    newname = newname.replace('<', '')
+    newname = newname.replace('>', '')
+    newname = newname.replace('*', '')
+    newname = newname.replace('?', '')
+    newname = newname.replace('$', '')
+    newname = newname.replace('!', '')
+    newname = path.replace('\'', '-')
+    newname = newname.replace('"', '')
+    newname = newname.replace('\'', '')
+    newname = path.replace('Å', 'ś')
+    newname = path.replace('Å', 'ń')
+    newname = path.replace(' ', '_')
+    newname = path.replace("'", '_')
+    newname = path.replace('(', '_')
+    newname = path.replace(')', '_')
+
+
+    #newname = path.translate(str.maketrans("","",delchars))
+
+    #re.sub('[^\w\-_\. ]', '_', newname)
+
+    if newname != path:
+        # print(path)
+        print(os.path.dirname(path.encode('utf8').decode(sys.stdout.encoding)) + "\t" + os.path.basename(path.encode('utf8').decode(sys.stdout.encoding)) +
+              "\t\t\t -> " + os.path.basename(newname.encode('utf8').decode(sys.stdout.encoding)))
+        os.rename(path, newname)
+
 
 
 
