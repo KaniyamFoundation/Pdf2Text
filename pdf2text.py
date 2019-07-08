@@ -195,10 +195,29 @@ for path in paths:
     newname = newname.replace('\'', '')
     newname = path.replace('Å', 'ś')
     newname = path.replace('Å', 'ń')
+
     newname = path.replace(' ', '_')
     newname = path.replace("'", '_')
     newname = path.replace('(', '_')
     newname = path.replace(')', '_')
+    newname = path.replace('[', '_')
+    newname = path.replace(']', '_')
+    newname = path.replace('{', '_')
+    newname = path.replace('}', '_')
+    newname = path.replace('`', '_')
+    newname = path.replace('~', '_')
+    newname = path.replace('@', '_')
+    newname = path.replace('}', '_')
+
+    newname = path.replace('^', '_')
+    newname = path.replace('&', '_')
+
+    newname = path.replace('+', '_')
+    newname = path.replace('=', '_')
+
+    newname = path.replace('"', '_')
+    newname = path.replace("'", '_')
+
 
 
     #newname = path.translate(str.maketrans("","",delchars))
