@@ -132,4 +132,8 @@ https://github.com/rahiel/telegram-send
 * Deletes all the temporary folders.
 
 
+# Changelog
 
+* added functionality to convert all the PDF files in "input" folder, automatically
+* cleared the issues with the filenames
+* using telegram-send to post the OCR completion status to a telegram group. (It is not working sometimes. Disabled this feature)
