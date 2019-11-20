@@ -19,6 +19,8 @@ sudo pip3 install google-api-python-client --ignore-installed
 
 sudo pip3 install oauth2client --ignore-installed
 
+sudo pip3 install telegram-send
+
 ```
 
 # API Setup
@@ -96,7 +98,16 @@ Single column is default.
 
 For double column files, set columns = 2 in config.ini
 
+# notifications via telegram
 
+If you want to get notifications via telegram, setup telegram-send for a group 
+
+```
+telegram-send --configure-group
+```
+
+read here for further details.
+https://github.com/rahiel/telegram-send
 
 # How it works?
 
