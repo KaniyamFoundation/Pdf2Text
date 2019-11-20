@@ -9,7 +9,7 @@ This script will convert your multi pages PDF file to text file using Google VIS
 # run below command in ubuntu
 ```
 
-sudo apt-get install poppler-utils mupdf-tools git python3-pip
+sudo apt-get install poppler-utils mupdf-tools git python3-pip ghostscript
 
 sudo pip3 install requests --ignore-installed
 
