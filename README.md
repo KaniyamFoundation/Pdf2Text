@@ -23,6 +23,15 @@ sudo pip3 install telegram-send
 
 ```
 
+# Folder Setup
+
+create a folder named "input". Keep all the PDF files here.
+
+create a folder named "output". The output text files will be stored here.
+
+create a folder named "completed_source_files". The completed PDF files will be moved here.
+
+
 # API Setup
 
 # API Setup
