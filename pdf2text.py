@@ -174,8 +174,10 @@ if not os.path.isdir(output_folder):
 
 
 if not os.path.isdir(input_folder):
-    print("Input Folder does not exist.")
-    sys.exit()
+    os.mkdir(input_folder)
+
+#    print("Input Folder does not exist.")
+#    sys.exit()
 
 
 logger.info("Input Folder name = " + input_folder)
