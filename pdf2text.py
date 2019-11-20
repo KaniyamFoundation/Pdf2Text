@@ -255,13 +255,13 @@ for path in paths:
 
 
 
-telegram_send.send(messages=["Starting OCR on " + hostname])
+#telegram_send.send(messages=["Starting OCR on " + hostname])
 
 
 file_number = 0
 total_files = len(glob.glob(input_folder+"/*"))
 
-telegram_send.send(messages=["Total files = " + str(total_files)])
+#telegram_send.send(messages=["Total files = " + str(total_files)])
 
 
 #for input_file in glob.glob(input_folder+"/*"):
@@ -366,15 +366,15 @@ def prepare_file(source_file, split_number):
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
-                telegram_send.send(messages=["ALERT : Error on " + filename + ". Script Stopped at " + hostname +". Rerun again"])
+                #telegram_send.send(messages=["ALERT : Error on " + filename + ". Script Stopped at " + hostname +". Rerun again"])
 #                sys.exit()
 #                os.system("python3 pdf2text.py")
 
                 error_message = "Got issues on " + source_file + " " + str(file_number) +"/" + str(total_files) + " on " + hostname
-                telegram_send.send(messages=[error_message])
+                #telegram_send.send(messages=[error_message])
                 traceback_text = traceback.format_exc()
                 message = "Error on " + __file__ +  "\n" + traceback_text
-                telegram_send.send(messages=[error_message])
+                #telegram_send.send(messages=[error_message])
 
 
             f= open(temp_folder + "/" + basename + ".upload","w+")
@@ -408,7 +408,7 @@ def prepare_file(source_file, split_number):
         )
 
 #	os.system("telegram-send " + "FAIL : Error on " + input_filename)
-        telegram_send.send(messages=["FAIL : Error on " + input_filename])
+        #telegram_send.send(messages=["FAIL : Error on " + input_filename])
 	
 
 
@@ -449,7 +449,7 @@ def prepare_file(source_file, split_number):
         " \n\nText files are not equal to PDF files. Some PDF files not OCRed. Run this script again to complete OCR all the PDF files \n\n"
         )
 	#os.system("telegram-send " + "FAIL : Error on " + input_filename)
-        telegram_send.send(messages=["FAIL : Error on " + source_file])
+        #telegram_send.send(messages=["FAIL : Error on " + source_file])
 #        sys.exit()
 #        os.system("python3 pdf2text.py")
 
@@ -500,7 +500,7 @@ def prepare_file(source_file, split_number):
 
         shutil.move(source_file, "./completed_source_files/" )
 
-        telegram_send.send(messages=["PASS : OCR Done on " + source_file + " "  + "Result file = all_text_for_" + source_file + ".txt " + str(file_number) +"/" + str(total_files) + " on " + hostname])
+        #telegram_send.send(messages=["PASS : OCR Done on " + source_file + " "  + "Result file = all_text_for_" + source_file + ".txt " + str(file_number) +"/" + str(total_files) + " on " + hostname])
 
         shutil.rmtree(temp_folder, ignore_errors=True)
 
@@ -521,10 +521,10 @@ except Exception as e:
     print(e)
     print(traceback.format_exc())
     error_message = "Got issues on " + source_file + " " + str(file_number) +"/" + str(total_files) + " on " + hostname
-    telegram_send.send(messages=[error_message])
+    #telegram_send.send(messages=[error_message])
     traceback_text = traceback.format_exc()
     message = "Error on " + __file__ +  "\n" + traceback_text
-    telegram_send.send(messages=[error_message])
+    #telegram_send.send(messages=[error_message])
 
 #    os.system("python3 pdf2text.py")
 
@@ -538,4 +538,4 @@ service.files().delete(fileId=new_folder_id).execute()
 #    shutil.rmtree(temp_folder, ignore_errors=True)
 
 
-telegram_send.send(messages=["All files done on " + hostname + ". Add next batch"])    
+#telegram_send.send(messages=["All files done on " + hostname + ". Add next batch"])    
