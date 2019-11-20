@@ -17,7 +17,6 @@ import string
 import re
 import telegram_send
 import traceback
-from retrying import retry
 
 from googleapiclient.discovery import build
 from httplib2 import Http
