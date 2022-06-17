@@ -40,8 +40,7 @@ create a folder named "completed_source_files". The completed PDF files will be 
 
  * Enable the following Google APIs in "APIs & auth/APIs"
     * Drive API
-    * Fusion Tables API
-
+    
  * Make sure your application has an application name in "APIs & auth/Consent screen"
     * Find "PRODUCT NAME" field. Make sure it's not blank.
 
